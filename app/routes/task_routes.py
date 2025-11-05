@@ -3,6 +3,12 @@ from ..models.task import Task
 from ..db import db
 from ..routes.routes_utilities import validate_model, create_model, get_models_with_filters
 from datetime import datetime
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+SLACK_TOKEN = os.getenv("SLACK_TOKEN")
+SLACK_CHANNEL = os.getenv("SLACK_CHANNEL")
 
 bp = Blueprint("task_bp", __name__, url_prefix='/tasks')
 
@@ -39,7 +45,30 @@ def mark_task_complete(id):
 
     db.session.commit()
 
+    send_completed_task_to_slack(task)
     return Response(status=204, mimetype="application/json")
+
+def send_completed_task_to_slack(task):
+    import requests
+
+    slack_message_url = "https://slack.com/api/chat.postMessage"
+    # channel is required by Slack API; allow configuration via SLACK_CHANNEL env var
+    channel = SLACK_CHANNEL or os.getenv("SLACK_CHANNEL")
+
+    message = {
+        "channel": channel,
+        "text": f"Task '{task.title}' has been completed!"
+    }
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {SLACK_TOKEN}"
+    }
+
+    response = requests.post(slack_message_url, json=message, headers=headers)
+    print(response.status_code, response.text)  # debug output
+    # print("SLACK_TOKEN:", SLACK_TOKEN) # debug output
+    # print("SLACK_CHANNEL:", SLACK_CHANNEL) # debug output
+    response.raise_for_status()
 
 @bp.patch("/<id>/mark_incomplete")
 def mark_task_incomplete(id):
