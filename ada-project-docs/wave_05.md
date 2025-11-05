@@ -12,7 +12,7 @@ Our plan for this wave is to be able to create, read, update, and delete differe
 
 This wave requires more test writing. The tests you need to write are scaffolded in the `test_wave_05.py` file. 
 - As with incomplete tests in other waves, you should comment out the `Exception` when implementing a test.
-- These tests are currently skipped with `@pytest.mark.skip(reason="test to be completed by student")` and the function body has `pass` in it. 
+- These tests are currently skipped with `# @pytest.mark.skip(reason="test to be completed by student")` and the function body has `pass` in it. 
   - Once you implement these tests you should remove the `skip` decorator and the `pass`.
 
 For the tests you write, use the requirements in this document to guide your test writing. 

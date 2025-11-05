@@ -1,7 +1,7 @@
 from app.models.goal import Goal
 import pytest
 
-@pytest.mark.skip(reason="No way to test this feature yet")
+# @pytest.mark.skip(reason="No way to test this feature yet")
 def test_goal_to_dict():
     #Arrange
     new_goal = Goal(id=1, title="Seize the Day!")
@@ -13,7 +13,7 @@ def test_goal_to_dict():
     assert goal_dict["id"] == 1
     assert goal_dict["title"] == "Seize the Day!"
 
-@pytest.mark.skip(reason="No way to test this feature yet")
+# @pytest.mark.skip(reason="No way to test this feature yet")
 def test_goal_to_dict_no_id():
     #Arrange
     new_goal = Goal(title="Seize the Day!")
@@ -25,7 +25,7 @@ def test_goal_to_dict_no_id():
     assert goal_dict["id"] is None
     assert goal_dict["title"] == "Seize the Day!"
 
-@pytest.mark.skip(reason="No way to test this feature yet")
+# @pytest.mark.skip(reason="No way to test this feature yet")
 def test_goal_to_dict_no_title():
     #Arrange
     new_goal = Goal(id=1)
@@ -39,7 +39,7 @@ def test_goal_to_dict_no_title():
 
 
 
-@pytest.mark.skip(reason="No way to test this feature yet")
+# @pytest.mark.skip(reason="No way to test this feature yet")
 def test_goal_from_dict():
     #Arrange
     goal_dict =  {
@@ -52,7 +52,7 @@ def test_goal_from_dict():
     #Assert
     assert goal_obj.title == "Seize the Day!"
 
-@pytest.mark.skip(reason="No way to test this feature yet")
+# @pytest.mark.skip(reason="No way to test this feature yet")
 def test_goal_from_dict_no_title():
     #Arrange
     goal_dict =  {
@@ -63,7 +63,7 @@ def test_goal_from_dict_no_title():
         Goal.from_dict(goal_dict)
 
 
-@pytest.mark.skip(reason="No way to test this feature yet")
+# @pytest.mark.skip(reason="No way to test this feature yet")
 def test_get_goals_no_saved_goals(client):
     # Act
     response = client.get("/goals")
@@ -74,7 +74,7 @@ def test_get_goals_no_saved_goals(client):
     assert response_body == []
 
 
-@pytest.mark.skip(reason="No way to test this feature yet")
+# @pytest.mark.skip(reason="No way to test this feature yet")
 def test_get_goals_one_saved_goal(client, one_goal):
     # Act
     response = client.get("/goals")
@@ -91,7 +91,7 @@ def test_get_goals_one_saved_goal(client, one_goal):
     ]
 
 
-@pytest.mark.skip(reason="No way to test this feature yet")
+# @pytest.mark.skip(reason="No way to test this feature yet")
 def test_get_goal(client, one_goal):
     # Act
     response = client.get("/goals/1")
@@ -105,7 +105,7 @@ def test_get_goal(client, one_goal):
     }
 
 
-@pytest.mark.skip(reason="test to be completed by student")
+# @pytest.mark.skip(reason="test to be completed by student")
 def test_get_goal_not_found(client):
     pass
     # Act
@@ -120,7 +120,7 @@ def test_get_goal_not_found(client):
     # ---- Complete Test ----
 
 
-@pytest.mark.skip(reason="No way to test this feature yet")
+# @pytest.mark.skip(reason="No way to test this feature yet")
 def test_create_goal(client):
     # Act
     response = client.post("/goals", json={
@@ -136,7 +136,7 @@ def test_create_goal(client):
     }
 
 
-@pytest.mark.skip(reason="test to be completed by student")
+# @pytest.mark.skip(reason="test to be completed by student")
 def test_update_goal(client, one_goal):
     raise Exception("Complete test")
     # Act
@@ -150,7 +150,7 @@ def test_update_goal(client, one_goal):
     # ---- Complete Assertions Here ----
 
 
-@pytest.mark.skip(reason="test to be completed by student")
+# @pytest.mark.skip(reason="test to be completed by student")
 def test_update_goal_not_found(client):
     raise Exception("Complete test")
     # Act
@@ -163,7 +163,7 @@ def test_update_goal_not_found(client):
     # ---- Complete Assertions Here ----
 
 
-@pytest.mark.skip(reason="No way to test this feature yet")
+# @pytest.mark.skip(reason="No way to test this feature yet")
 def test_delete_goal(client, one_goal):
     # Act
     response = client.delete("/goals/1")
@@ -184,7 +184,7 @@ def test_delete_goal(client, one_goal):
     # *****************************************************************
 
 
-@pytest.mark.skip(reason="test to be completed by student")
+# @pytest.mark.skip(reason="test to be completed by student")
 def test_delete_goal_not_found(client):
     raise Exception("Complete test")
 
@@ -198,7 +198,7 @@ def test_delete_goal_not_found(client):
     # ---- Complete Assertions Here ----
 
 
-@pytest.mark.skip(reason="No way to test this feature yet")
+# @pytest.mark.skip(reason="No way to test this feature yet")
 def test_create_goal_missing_title(client):
     # Act
     response = client.post("/goals", json={})

@@ -13,11 +13,6 @@ class Task(db.Model):
     # goal: Mapped[Optional["Goal"]] = relationship(back_populates="tasks")
 
     def to_dict(self):
-        """Return a dict with the public task representation expected by the tests.
-
-        The tests expect an `is_complete` boolean (True when `completed_at` is set,
-        otherwise False) and do not expect `completed_at` to be exposed.
-        """
         return {
             "id": self.id,
             "title": self.title,
@@ -31,7 +26,7 @@ class Task(db.Model):
         # If `is_complete` is True, set completed_at to now; otherwise keep it None.
         is_complete = task_data.get("is_complete", False)
 
-        completed_at = datetime.utcnow() if is_complete else None
+        completed_at = datetime.now() if is_complete else None
 
         return cls(title=task_data["title"],
                     description=task_data["description"],

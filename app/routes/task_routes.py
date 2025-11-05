@@ -11,15 +11,25 @@ def create_task():
 
     return create_model(Task, request_body)
 
+
 @bp.get("")
 def get_all_tasks():
-    return get_models_with_filters(Task, request.args)
+    sort_order = request.args.get("sort")
+    query = db.select(Task)
+    if sort_order == "asc":
+        query = query.order_by(Task.title.asc())
+    elif sort_order == "desc":
+        query = query.order_by(Task.title.desc())
+    tasks = db.session.scalars(query)
+    tasks_response = [task.to_dict() for task in tasks]
+    return tasks_response
 
 @bp.get("/<id>")
 def get_single_tasks(id):
     task = validate_model(Task, id)
 
     return task.to_dict()
+
         
 @bp.put("/<id>")
 def replace_task(id):
