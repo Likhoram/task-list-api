@@ -2,6 +2,7 @@ from flask import Blueprint, request, Response
 from ..models.task import Task
 from ..db import db
 from ..routes.routes_utilities import validate_model, create_model, get_models_with_filters
+from datetime import datetime
 
 bp = Blueprint("task_bp", __name__, url_prefix='/tasks')
 
@@ -30,7 +31,26 @@ def get_single_tasks(id):
 
     return task.to_dict()
 
-        
+@bp.patch("/<id>/mark_complete")
+def mark_task_complete(id):
+    task = validate_model(Task, id)
+
+    task.completed_at = datetime.now()
+
+    db.session.commit()
+
+    return Response(status=204, mimetype="application/json")
+
+@bp.patch("/<id>/mark_incomplete")
+def mark_task_incomplete(id):
+    task = validate_model(Task, id)
+
+    task.completed_at = None
+
+    db.session.commit()
+
+    return Response(status=204, mimetype="application/json")
+
 @bp.put("/<id>")
 def replace_task(id):
     task = validate_model(Task, id)
