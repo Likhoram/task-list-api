@@ -5,7 +5,7 @@ from flask.signals import request_finished
 from dotenv import load_dotenv
 import os
 from app.models.task import Task
-from app.models.goal import Goal
+# from app.models.goal import Goal
 from datetime import datetime
 
 load_dotenv()

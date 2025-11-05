@@ -5,13 +5,17 @@ def validate_model(cls, id):
     try:
         id = int(id)
     except ValueError:
-        abort(make_response({"message": f"{cls.__name__} id {id} invalid"}, 400))
+        # Normalize error payload to use `details` so tests / clients get a
+        # consistent response shape for invalid input.
+        abort(make_response({"details": "Invalid id"}, 400))
 
     query = db.select(cls).where(cls.id == id)
     model = db.session.scalar(query)
 
     if not model:
-        abort(make_response({"message": f"{cls.__name__} with id {id} not found"}, 404))
+        # Tests expect a `details` key on error responses. Use a simple
+        # generic message so tests can assert on a stable payload.
+        abort(make_response({"details": "Not found"}, 404))
 
     return model
 
@@ -19,7 +23,9 @@ def create_model(cls, model_data):
     try:
         new_model = cls.from_dict(model_data)
     except KeyError as error:
-        abort(make_response({"error": f"Missing required field: {error.args[0]}"}, 400))
+        # Tests expect a standardized response body on invalid input
+        # with a `details` key and the value "Invalid data".
+        abort(make_response({"details": "Invalid data"}, 400))
 
     db.session.add(new_model)
     db.session.commit()

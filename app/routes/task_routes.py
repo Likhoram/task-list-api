@@ -26,9 +26,9 @@ def replace_task(id):
     task = validate_model(Task, id)
 
     request_body = request.get_json()
-    task.name = request_body["name"]
-    task.color = request_body["color"]
-    task.personality = request_body["personality"]
+    task.title = request_body["title"]
+    task.description = request_body["description"]  
+    task.completed_at = request_body.get("completed_at", None)
 
     db.session.commit()
 
