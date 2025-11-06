@@ -40,6 +40,10 @@ def get_single_tasks(id):
 @bp.patch("/<id>/mark_complete")
 def mark_task_complete(id):
     task = validate_model(Task, id)
+    request_data = request.get_json()
+
+    if "title" in request_data:
+        task.title = request_data["title"]
 
     task.completed_at = datetime.now()
 
@@ -57,7 +61,7 @@ def send_completed_task_to_slack(task):
 
     message = {
         "channel": channel,
-        "text": f"Task '{task.title}' has been completed!"
+        "text": f"Someone just completed the task '{task.title}'!"
     }
     headers = {
         "Content-Type": "application/json",
@@ -66,8 +70,8 @@ def send_completed_task_to_slack(task):
 
     response = requests.post(slack_message_url, json=message, headers=headers)
     print(response.status_code, response.text)  # debug output
-    # print("SLACK_TOKEN:", SLACK_TOKEN) # debug output
-    # print("SLACK_CHANNEL:", SLACK_CHANNEL) # debug output
+    print("SLACK_TOKEN:", SLACK_TOKEN) # debug output
+
     response.raise_for_status()
 
 @bp.patch("/<id>/mark_incomplete")
