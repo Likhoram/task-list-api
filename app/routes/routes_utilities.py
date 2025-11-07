@@ -7,7 +7,7 @@ def validate_model(cls, id):
     except (ValueError, TypeError):
         abort(make_response({"details": "Invalid id"}, 400))
 
-    model = db.session.get(cls, id)  # Using session.get instead of Query.get
+    model = db.session.get(cls, id) 
 
     if not model:
         abort(make_response({"details": "Not found"}, 404))
@@ -15,12 +15,9 @@ def validate_model(cls, id):
     return model
 
 def create_model(cls, model_data):
-    if not isinstance(model_data, dict):
-        abort(make_response({"details": "Invalid data"}, 400))
-
     try:
         new_model = cls.from_dict(model_data)
-    except (KeyError, ValueError):
+    except Exception:
         abort(make_response({"details": "Invalid data"}, 400))
 
     db.session.add(new_model)
@@ -45,17 +42,7 @@ def get_models_with_filters(cls, args=None):
     return models_response
 
 def update_model_fields(model, data, allowed_fields):
-    """
-    Update a model instance with provided data for the given allowed fields
-    and commit the transaction. Returns an empty 204 response to match tests.
-
-    Args:
-        model: SQLAlchemy model instance to update
-        data: dict of incoming fields
-        allowed_fields: iterable of field names allowed to update
-    """
     if not isinstance(data, dict):
-        # Keep error contract consistent with other helpers
         abort(make_response({"details": "Invalid data"}, 400))
 
     for field in allowed_fields:
@@ -66,9 +53,19 @@ def update_model_fields(model, data, allowed_fields):
     return make_response("", 204)
 
 def delete_model(model):
-    """
-    Delete a model instance and commit. Returns empty 204 response.
-    """
     db.session.delete(model)
     db.session.commit()
     return make_response("", 204)
+
+def assign_related_by_ids(parent, relation_name, child_cls, ids, response_key="task_ids"):
+    if not isinstance(ids, list):
+        abort(make_response({"details": "Invalid data"}, 400))
+
+    related = [validate_model(child_cls, cid) for cid in ids]
+    setattr(parent, relation_name, related)
+    db.session.commit()
+
+    return {
+        "id": parent.id,
+        response_key: [getattr(obj, "id") for obj in related]
+    }, 200

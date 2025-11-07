@@ -1,10 +1,11 @@
-from flask import abort, Blueprint, make_response, request
+from flask import Blueprint, request
 from ..routes.routes_utilities import (
     validate_model,
     create_model,
     get_models_with_filters,
     update_model_fields,
     delete_model,
+    assign_related_by_ids,
 )
 from ..models.goal import Goal
 from ..models.task import Task
@@ -42,27 +43,8 @@ def create_goal():
 @bp.post("/<id>/tasks")
 def post_task_ids_to_goal(id):
     goal = validate_model(Goal, id)
-    request_data = request.get_json()
-    
-    if not request_data or "task_ids" not in request_data:
-        abort(make_response({"details": "Invalid data"}, 400))
-
-    task_ids = request_data["task_ids"]
-    
-    # Clear existing tasks
-    goal.tasks = []
-    
-    # Add new tasks
-    for task_id in task_ids:
-        task = validate_model(Task, task_id)
-        goal.tasks.append(task)
-    
-    db.session.commit()
-    
-    return {
-        "id": goal.id,
-        "task_ids": [task.id for task in goal.tasks]
-    }, 200
+    data = request.get_json() or {}
+    return assign_related_by_ids(goal, "tasks", Task, data.get("task_ids"))
 
 @bp.put("/<id>")
 def update_goal(id):

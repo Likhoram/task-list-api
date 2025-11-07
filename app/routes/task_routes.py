@@ -1,5 +1,4 @@
-from flask import Blueprint, request, Response, abort, make_response
-from werkzeug.exceptions import HTTPException
+from flask import Blueprint, request, Response
 from ..models.task import Task
 from ..db import db
 from ..routes.routes_utilities import (
@@ -19,29 +18,18 @@ SLACK_CHANNEL = os.getenv("SLACK_CHANNEL")
 
 bp = Blueprint("task_bp", __name__, url_prefix='/tasks')
 
-@bp.post("")
-def create_task():
-    model_dict, status_code = create_model(Task, request.get_json())
-    return model_dict, status_code
-
-
 @bp.get("")
 def get_all_tasks():
     return get_models_with_filters(Task, request.args)
 
 @bp.get("/<id>")
 def get_single_tasks(id):
-    try:
-        task = validate_model(Task, id)
-        task_dict = task.to_dict()
-
-        # Include goal_id in the single-task response when applicable (Wave 6)
-        if task.goal_id is not None:
-            task_dict["goal_id"] = task.goal_id
-
-        return task_dict
-    except HTTPException as e:
-        return e.response
+    task = validate_model(Task, id)
+    task_dict = task.to_dict()
+    # Include goal_id in the single-task response when applicable (Wave 6)
+    if task.goal_id is not None:
+        task_dict["goal_id"] = task.goal_id
+    return task_dict
 
 @bp.patch("/<id>/mark_complete")
 def mark_task_complete(id):
@@ -72,8 +60,8 @@ def send_completed_task_to_slack(task):
     }
 
     response = requests.post(slack_message_url, json=message, headers=headers)
-    print(response.status_code, response.text)  # debug output
-    print("SLACK_TOKEN:", SLACK_TOKEN) # debug output
+    # print(response.status_code, response.text)  # debug output
+    # print("SLACK_TOKEN:", SLACK_TOKEN) # debug output
 
     response.raise_for_status()
 
@@ -86,6 +74,11 @@ def mark_task_incomplete(id):
     db.session.commit()
 
     return Response(status=204, mimetype="application/json")
+
+@bp.post("")
+def create_task():
+    model_dict, status_code = create_model(Task, request.get_json())
+    return model_dict, status_code
 
 @bp.put("/<id>")
 def replace_task(id):

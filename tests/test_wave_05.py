@@ -176,7 +176,6 @@ def test_delete_goal(client, one_goal):
     response_body = response.get_json()
     assert response_body == {"details": "Not found"}
 
-    # raise Exception("Complete test with assertion about response body")
     # *****************************************************************
     # **Complete test with assertion about response body***************
     # *****************************************************************
