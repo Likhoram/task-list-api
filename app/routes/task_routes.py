@@ -1,7 +1,14 @@
-from flask import Blueprint, request, Response
+from flask import Blueprint, request, Response, abort, make_response
+from werkzeug.exceptions import HTTPException
 from ..models.task import Task
 from ..db import db
-from ..routes.routes_utilities import validate_model, create_model, get_models_with_filters
+from ..routes.routes_utilities import (
+    validate_model,
+    create_model,
+    get_models_with_filters,
+    update_model_fields,
+    delete_model,
+)
 from datetime import datetime
 from dotenv import load_dotenv
 import os
@@ -14,37 +21,33 @@ bp = Blueprint("task_bp", __name__, url_prefix='/tasks')
 
 @bp.post("")
 def create_task():
-    request_body = request.get_json()
-
-    return create_model(Task, request_body)
+    model_dict, status_code = create_model(Task, request.get_json())
+    return model_dict, status_code
 
 
 @bp.get("")
 def get_all_tasks():
-    sort_order = request.args.get("sort")
-    query = db.select(Task)
-    if sort_order == "asc":
-        query = query.order_by(Task.title.asc())
-    elif sort_order == "desc":
-        query = query.order_by(Task.title.desc())
-    tasks = db.session.scalars(query)
-    tasks_response = [task.to_dict() for task in tasks]
-    return tasks_response
+    return get_models_with_filters(Task, request.args)
 
 @bp.get("/<id>")
 def get_single_tasks(id):
-    task = validate_model(Task, id)
+    try:
+        task = validate_model(Task, id)
+        task_dict = task.to_dict()
 
-    return task.to_dict()
+        # Include goal_id in the single-task response when applicable (Wave 6)
+        if task.goal_id is not None:
+            task_dict["goal_id"] = task.goal_id
+
+        return task_dict
+    except HTTPException as e:
+        return e.response
 
 @bp.patch("/<id>/mark_complete")
 def mark_task_complete(id):
     task = validate_model(Task, id)
-    request_data = request.get_json()
-
-    if "title" in request_data:
-        task.title = request_data["title"]
-
+    # No request body is expected for marking a task complete; simply set
+    # the completed timestamp.
     task.completed_at = datetime.now()
 
     db.session.commit()
@@ -89,19 +92,9 @@ def replace_task(id):
     task = validate_model(Task, id)
 
     request_body = request.get_json()
-    task.title = request_body["title"]
-    task.description = request_body["description"]  
-    task.completed_at = request_body.get("completed_at", None)
-
-    db.session.commit()
-
-    return Response(status=204, mimetype="applitaskion/json")
+    return update_model_fields(task, request_body, ["title", "description", "completed_at"])
 
 @bp.delete("/<id>")
 def delete_task(id):
     task = validate_model(Task, id)
-
-    db.session.delete(task)
-    db.session.commit()
-
-    return Response(status=204, mimetype="applitaskion/json")
+    return delete_model(task)
