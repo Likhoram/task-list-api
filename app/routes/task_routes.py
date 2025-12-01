@@ -26,11 +26,7 @@ def get_all_tasks():
 @bp.get("/<id>")
 def get_single_tasks(id):
     task = validate_model(Task, id)
-    task_dict = task.to_dict()
-    # Include goal_id in the single-task response when applicable (Wave 6)
-    if task.goal_id is not None:
-        task_dict["goal_id"] = task.goal_id
-    return task_dict
+    return task.to_dict()
 
 @bp.patch("/<id>/mark_complete")
 def mark_task_complete(id):
