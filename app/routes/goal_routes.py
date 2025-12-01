@@ -29,8 +29,6 @@ def get_all_goal_tasks(id):
     tasks = []
     for task in goal.tasks:
         t = task.to_dict()
-        # Tests expect tasks returned for a goal to include the goal_id
-        t["goal_id"] = goal.id
         tasks.append(t)
 
     return {"id": goal.id, "title": goal.title, "tasks": tasks}
