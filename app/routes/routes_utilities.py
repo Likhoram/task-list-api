@@ -1,4 +1,5 @@
 from flask import abort, make_response
+import json
 from ..db import db
 
 def validate_model(cls, id):
@@ -31,9 +32,11 @@ def get_models_with_filters(cls, args=None):
     # Handle sorting
     sort = args.get("sort") if args else None
     if sort == "asc":
-        query = query.order_by(cls.title.asc())
+        # title, then id
+        query = query.order_by(cls.title.asc(), cls.id)
     elif sort == "desc":
-        query = query.order_by(cls.title.desc())
+        # title (descending), then id
+        query = query.order_by(cls.title.desc(), cls.id)
     else:
         query = query.order_by(cls.id)
 
@@ -50,12 +53,15 @@ def update_model_fields(model, data, allowed_fields):
             setattr(model, field, data[field])
 
     db.session.commit()
-    return make_response("", 204)
+    return empty_response()
 
 def delete_model(model):
     db.session.delete(model)
     db.session.commit()
-    return make_response("", 204)
+    return empty_response()
+
+def empty_response():
+    return make_response(json.dumps({}), 204, {"Content-Type": "application/json"})
 
 def assign_related_by_ids(parent, relation_name, child_cls, ids, response_key="task_ids"):
     if not isinstance(ids, list):

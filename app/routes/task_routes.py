@@ -8,6 +8,7 @@ from ..routes.routes_utilities import (
     update_model_fields,
     delete_model,
 )
+from ..routes.routes_utilities import empty_response
 from datetime import datetime
 from dotenv import load_dotenv
 import os
@@ -41,7 +42,7 @@ def mark_task_complete(id):
     db.session.commit()
 
     send_completed_task_to_slack(task)
-    return Response(status=204, mimetype="application/json")
+    return empty_response()
 
 def send_completed_task_to_slack(task):
     import requests
@@ -73,7 +74,7 @@ def mark_task_incomplete(id):
 
     db.session.commit()
 
-    return Response(status=204, mimetype="application/json")
+    return empty_response()
 
 @bp.post("")
 def create_task():
